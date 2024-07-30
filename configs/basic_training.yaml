@@ -1,0 +1,26 @@
+# yaml with the naive configuration of the training. 
+train_split:
+    path: 'google/fleurs'
+    name: 'te_in'
+    split: 'train' # we will update this accordingly based on the split
+    streaming: False
+
+train_settings:
+    parakeet_flavour: "parakeet-tdt-1.1b.nemo"
+    config_file_path: "/gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/configs/speech_to_text_hf_finetune.yaml"
+    vocab_size: 256
+    tokenizer_type: "spe"
+    tokenizer_dir: /gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/tokenizers/tokenizer_spe_bpe_v256
+    spe_type: "bpe"
+    max_steps: 5000
+    max_epochs: 30
+    devices: 1
+    nodes: 1
+    enable_checkpointing: False
+    logger: False
+    log_every_n_steps: 100
+    check_val_every_n_epoch: 10
+    save_directory: "/gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/checkpoints"
+    pretrained_dir: "/gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/nemo_models"
+
+

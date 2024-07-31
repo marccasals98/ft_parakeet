@@ -105,6 +105,7 @@ class CustomTrainer:
         self.trainer = Trainer(devices=self.params.devices,
                                num_nodes=self.params.nodes,
                                accelerator=self.device,
+                               strategy="ddp",
                                max_epochs=self.params.max_epochs,
                                enable_checkpointing=self.params.enable_checkpointing,
                                logger=self.params.logger,

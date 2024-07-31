@@ -1,0 +1,7 @@
+cache/
+checkpoints/
+logs/
+models/
+nemo_models/
+tokenizers/
+nemo_models24_07_23_14_52_54.nemo

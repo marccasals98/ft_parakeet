@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH -D .
 #SBATCH --account=bsc88                 # Our project account id
-#SBATCH -q acc_bscls                   # QoS for life sciences in nodes with GPUs (acc_bscls) / (acc_debug) for debug
+#SBATCH -q acc_debug                   # QoS for life sciences in nodes with GPUs (acc_bscls) / (acc_debug) for debug
 
-#SBATCH --time=0-48:00:00               # acc_bscls wallclock 48h / acc_debug wallclock 2h
+#SBATCH --time=0-02:00:00               # acc_bscls wallclock 48h / acc_debug wallclock 2h
 #SBATCH -c 20                           # cpus-per-task
-#SBATCH --job-name=ft_parakeet_24node_4_multinode
+#SBATCH --job-name=ft_conformer_transducer_debug_train_velocity
 #SBATCH --output=/gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/logs/%x_job-%j.log
 
 #SBATCH --gres=gpu:4                    #4
@@ -35,7 +35,7 @@ DATA_FILE="/gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_conformer_tr
 #FINE-TUNING VARIABLES
 HYDRA_FULL_ERROR=1
 CUDA_VISIBLE_DEVICES="0,1,2,3"
-INIT_MODEL=parakeet-rnnt-0.6b.nemo
+INIT_MODEL=stt_ca_conformer_transducer_large
 RESULTS="/gpfs/projects/bsc88/speech/ASR/outputs/ft_parakeet/"
 
 #Additional flags

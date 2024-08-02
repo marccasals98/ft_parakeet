@@ -4,7 +4,7 @@ from nemo.collections.asr.models import ASRModel
 
 
 # Define the model name and the directory to save the model
-model_name = "nvidia/parakeet-tdt-1.1b"
+model_name = "nvidia/stt_ca_conformer_transducer_large"
 save_directory = "./nemo_models"
 
 # Create the directory if it does not exist
@@ -16,7 +16,7 @@ asr_model = ASRModel.from_pretrained(model_name)
 
 
 # Save the model and tokenizer to the directory
-asr_model.save_to(save_directory+"/parakeet-tdt-1.1b.nemo")
+asr_model.save_to(save_directory+"/stt_ca_conformer_transducer_large")
 
 
 print(f"Model and tokenizer saved to {save_directory}")

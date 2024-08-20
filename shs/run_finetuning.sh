@@ -1,16 +1,16 @@
 #!/bin/bash
 #SBATCH -D .
 #SBATCH --account=bsc88                 # Our project account id
-#SBATCH -q acc_debug                   # QoS for life sciences in nodes with GPUs (acc_bscls) / (acc_debug) for debug
+#SBATCH -q acc_bscls                   # QoS for life sciences in nodes with GPUs (acc_bscls) / (acc_debug) for debug
 
-#SBATCH --time=0-02:00:00               # acc_bscls wallclock 48h / acc_debug wallclock 2h
+#SBATCH --time=0-48:00:00               # acc_bscls wallclock 48h / acc_debug wallclock 2h
 #SBATCH -c 20                           # cpus-per-task
-#SBATCH --job-name=ft_conformer_transducer_debug_train_velocity
+#SBATCH --job-name=ft_parakeet_24_4
 #SBATCH --output=/gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/logs/%x_job-%j.log
 
-#SBATCH --gres=gpu:4                    #4
+#SBATCH --gres=gpu:4                   #4
 #SBATCH --ntasks-per-node=4            # This needs to match Trainer(devices=...); 4
-#SBATCH --nodes=24                      # Number of nodes; 4 match Trainer(num_nodes=...)
+#SBATCH --nodes=25                      # Number of nodes; 4 match Trainer(num_nodes=...)
 
 #SBATCH --verbose
 

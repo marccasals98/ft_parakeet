@@ -15,12 +15,12 @@ model:
   # configs for huggingface load_dataset function
   data_path: "librispeech_asr"
   data_name: null  # name for the specific dataset to load, e.g., 'en' for MCV datasets, but some datasets don't require this field.
-  streaming: false # set True to use streaming mode, which doesn't wait for data downloading but each training step takes longer in the first epoch. If True, you'll need to specify trainer.max_steps instead of trainer.max_epochs.
+  streaming: true # set True to use streaming mode, which doesn't wait for data downloading but each training step takes longer in the first epoch. If True, you'll need to specify trainer.max_steps instead of trainer.max_epochs.
 
   # keys for audio, sample_rate and transcription in the huggingface dataset, keys seperated by `.` for nested fields. See example at the bottom of this file.
   audio_key: "audio.array"
   sample_rate_key: "audio.sampling_rate"
-  text_key: "normalized_text"  # the key for groundtruth transcription, e.g., MCV usually uses "sentence" while some others use "text"
+  text_key: "text"  # the key for groundtruth transcription, e.g., MCV usually uses "sentence" while some others use "text"
 
   # simple text cleaning, by default converts all chars to lower-case and only keeps alpha-numeric chars.
   normalize_text: false
@@ -34,17 +34,26 @@ model:
     audio_key: ${model.audio_key}
     sample_rate_key: ${model.sample_rate_key}
     text_key:  ${model.text_key}
-    
     hf_data_cfg:  # hf_data_cfg can be a ListConfig or DictConfig. Params for each data are passed into huggingface load_dataset(). Add more params if needed
-      path: /gpfs/projects/bsc88/speech/data/raw_data/1_DATALOADERS/CATALAN_DATALOADER/loading_script.py
-      split: train
-      streaming: false
+      - path: ${model.data_path}
+        name: ${model.data_name}
+        split: 'train.clean.360'
+        streaming: ${model.streaming}
+      - path: ${model.data_path}
+        name: ${model.data_name}
+        split: 'train.clean.100'
+        streaming: ${model.streaming}
+      - path: ${model.data_path}
+        name: ${model.data_name}
+        split: 'train.other.500'
+        streaming: ${model.streaming}
   
     sample_rate: ${model.sample_rate}
     batch_size: 2 # you may increase batch_size if your memory allows
+    max_duration: 15
     shuffle: true
     shuffle_n: 2048
-    num_workers: 8
+    num_workers: 1
     pin_memory: true
     use_start_end_token: false
 
@@ -57,15 +66,17 @@ model:
     sample_rate_key: ${model.sample_rate_key}
     text_key:  ${model.text_key}
     hf_data_cfg:  # An example of using only one dataset
-      path: /gpfs/projects/bsc88/speech/data/raw_data/1_DATALOADERS/CATALAN_DATALOADER/loading_script.py
-      split: validation
-      streaming: false
+      path: ${model.data_path}
+      name: ${model.data_name}
+      split: 'validation.other'
+      streaming: ${model.streaming}
 
     sample_rate: ${model.sample_rate}
-    batch_size: 1
+    batch_size: 2
+    max_duration: 15
     shuffle: false
     shuffle_n: 2048
-    num_workers: 8
+    num_workers: 1
     pin_memory: true
     use_start_end_token: false
 
@@ -78,15 +89,20 @@ model:
     sample_rate_key: ${model.sample_rate_key}
     text_key:  ${model.text_key}
     hf_data_cfg:  # hf_data_cfg can be a ListConfig or DictConfig. Params for each data are passed into huggingface load_dataset(). Add more params if needed
-      path: /gpfs/projects/bsc88/speech/data/raw_data/1_DATALOADERS/CATALAN_DATALOADER/loading_script.py
-      split: test
-      streaming: false
+      - path: ${model.data_path}
+        name: ${model.data_name}
+        split: 'test.other'
+        streaming: ${model.streaming}
+      - path: ${model.data_path}
+        name: ${model.data_name}
+        split: 'test.clean'
+        streaming: ${model.streaming}
 
     sample_rate: ${model.sample_rate}
-    batch_size: 1
+    batch_size: 2
     shuffle: false
     shuffle_n: 2048
-    num_workers: 8
+    num_workers: 1
     pin_memory: true
     use_start_end_token: false
 
@@ -95,8 +111,8 @@ model:
     labels: null # example list config: \[' ', 'a', 'b', 'c'\]
 
   tokenizer: # use for spe/bpe based tokenizer models
-    update_tokenizer: true
-    dir: /gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/tokenizers/tokenizer_spe_bpe_v256/tokenizer.model  # path to directory which contains either tokenizer.model (bpe) or vocab.txt (for wpe)
+    update_tokenizer: false
+    dir: null
     type: bpe  # Can be either bpe (SentencePiece tokenizer) or wpe (WordPiece tokenizer)
 
 
@@ -118,17 +134,17 @@ model:
     sched:
       name: CosineAnnealing
       # scheduler config override
-      warmup_steps: 500
+      warmup_steps: 5000
       warmup_ratio: null
       min_lr: 5e-6
 
 trainer:
-  devices: -1 # number of GPUs, -1 would use all available GPUs
-  num_nodes: 1
+  devices: 4 # number of GPUs, -1 would use all available GPUs
+  num_nodes: 4
   max_epochs: 100
   max_steps: -1 # computed at runtime if not set
   val_check_interval: 1.0 # Set to 0.25 to check 4 times per epoch, or an int for number of iterations
-  accelerator: auto
+  accelerator: gpu
   strategy: ddp
   accumulate_grad_batches: 1
   gradient_clip_val: 0.0
@@ -138,7 +154,7 @@ trainer:
   num_sanity_val_steps: 0 # number of steps to perform validation steps for sanity check the validation process before starting the training, setting to 0 disables it
   check_val_every_n_epoch: 1 # number of evaluations on validation every n epochs
   sync_batchnorm: true
-  enable_checkpointing: False  # Provided by exp_manager
+  enable_checkpointing: True  # Provided by exp_manager
   logger: false  # Provided by exp_manager
   benchmark: false # needs to be false for models with variable-length speech input as it slows down training
 
@@ -149,12 +165,13 @@ exp_manager:
   create_tensorboard_logger: true
   create_checkpoint_callback: true
   checkpoint_callback_params:
-    # in case of multiple validation sets, first one is used
-    monitor: "val_wer"
+    every_n_epochs: 5
+    monitor: "val_loss"
     mode: "min"
-    save_top_k: 5
+    save_top_k: -1
+    save_last: True
     always_save_nemo: True # saves the checkpoints as nemo files along with PTL checkpoints
-  resume_if_exists: false
+  resume_if_exists: True
   resume_ignore_no_checkpoint: false
 
   create_wandb_logger: false

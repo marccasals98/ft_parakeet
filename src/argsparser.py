@@ -17,7 +17,7 @@ class ArgsParser:
             '--parakeet_flavour',
             type=str,
             default=cfg.train_settings.parakeet_flavour,
-            choices=["parakeet-rnnt-0.6b.nemo", "parakeet-0.6b"]
+            choices=["parakeet-rnnt-0.6b.nemo", "parakeet-0.6b", "parakeet-tdt-1.1b.nemo"]
         )
 
         self.parser.add_argument(

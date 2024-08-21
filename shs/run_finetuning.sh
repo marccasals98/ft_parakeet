@@ -96,4 +96,6 @@ export TORCH_USE_CUDA_DSA=1
 srun python /gpfs/projects/bsc88/speech/ASR/scripts/miscellaneous/ft_parakeet/src/train.py \
     --devices=$SLURM_NTASKS_PER_NODE \
     --nodes=$SLURM_NNODES \
-    --parakeet_flavour="parakeet-rnnt-0.6b.nemo"
+    --parakeet_flavour="parakeet-tdt-1.1b.nemo"
+
+
